@@ -90,11 +90,15 @@ class SchemaService[F[+_]: Sync](swagger: SwaggerSyntax[F],
     }
   }
 
-  def getSchemasByName(vendor: String, name: String, format: SchemaFormat, permission: Permission) =
-    Ok(db.getSchemasByVendorName(vendor, name).filter(isReadable(permission)).map(_.withFormat(format)))
+  def getSchemasByName(vendor: String, name: String, format: SchemaFormat, permission: Permission) = {
+    val response = db.getSchemasByVendorName(vendor, name).filter(isReadable(permission)).map(_.withFormat(format))
+    Ok(JsonArrayStream(response))
+  }
 
-  def getSchemasByVendor(vendor: String, format: SchemaFormat, permission: Permission) =
-    Ok(db.getSchemasByVendor(vendor, false).filter(isReadable(permission)).map(_.withFormat(format)))
+  def getSchemasByVendor(vendor: String, format: SchemaFormat, permission: Permission) = {
+    val response = db.getSchemasByVendor(vendor, false).filter(isReadable(permission)).map(_.withFormat(format))
+    Ok(JsonArrayStream(response))
+  }
 
   def publishSchema(isPublic: Boolean, permission: Permission, schema: SelfDescribingSchema[Json]) =
     addSchema(permission, schema, isPublic)
